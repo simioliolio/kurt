@@ -1,0 +1,3 @@
+namespace kurt {
+
+} // namespace kurt
