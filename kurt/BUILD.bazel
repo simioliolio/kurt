@@ -3,7 +3,6 @@ cc_library(
     srcs = glob(["src/**/*.h", "src/**/*.cpp"]),
     hdrs = glob(["include/**/*.hpp"]),
     includes = ["include"],
-    # copts = ["-std=c++14"],
     visibility = ["//visibility:public"],
 )
 

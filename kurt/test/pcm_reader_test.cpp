@@ -8,5 +8,5 @@ TEST(PCMReaderTest, Load)
 {
     PCMReader reader;
     reader.read("test.wav");
-    // TODO: Finish test
+    // ASSERT_TRUE(false, "Not implemented yet");
 }
