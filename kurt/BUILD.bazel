@@ -13,8 +13,8 @@ cc_test(
         "@com_google_googletest//:gtest_main",
     ],
     srcs = glob(["test/*.cpp"]),
-    data = [],
-    copts = ["-Ioption=simon"],
-    defines = [],
+    data = [
+        "test/resources/16bit_stereo.wav",
+        "test/resources/24bit_stereo.wav"],
     size = "small",
 )

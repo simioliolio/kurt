@@ -7,6 +7,10 @@ using namespace kurt;
 TEST(PCMReaderTest, Load)
 {
     PCMReader reader;
-    reader.read("test.wav");
-    // ASSERT_TRUE(false, "Not implemented yet");
+    auto result = reader.read("kurt/test/resources/16bit_stereo.wav");
+    ASSERT_TRUE(result.has_value()) << result.error();
+
+    auto data_length = result.value();
+    ASSERT_EQ(data_length, 16) << "Data length is not correct";
+
 }
