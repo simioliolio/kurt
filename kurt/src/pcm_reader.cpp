@@ -1,5 +1,6 @@
 #include "pcm_reader.hpp"
 
+#include <cassert>
 #include <fstream>
 
 namespace kurt {
@@ -78,7 +79,37 @@ std::expected<uint32_t, std::string> PCMReader::read(const std::string &file_pat
     _pcm_data.data.resize(_pcm_data.data_size);
     file.read(_pcm_data.data.data(), _pcm_data.data_size);
 
+    _pcm_data.number_of_frames = _pcm_data.data_size / (_pcm_data.channels * (_pcm_data.bits_per_sample / 8));
+
     return _pcm_data.data_size;
+}
+
+int32_t PCMReader::sample_at_frame(uint32_t frame, uint8_t channel)
+{
+    assert(frame < _pcm_data.number_of_frames);
+    assert(channel < _pcm_data.channels);
+
+    auto bytes_per_sample = _pcm_data.bits_per_sample / 8;
+    auto sample_index = frame * _pcm_data.channels + channel;
+    auto byte_index = sample_index * bytes_per_sample;
+
+    int32_t sample = 0;
+
+    // Collect sample bytes and shift to the correct position
+    for (size_t i = 0; i < bytes_per_sample; i++) {
+        sample |= static_cast<uint8_t>(_pcm_data.data[byte_index + i]) << (i * 8);
+    }
+
+    // For 32-bit, we are done (as our type is int32_t and honors twos-compliment)
+    // For lower bitrates, we need to sign-extend the sample.
+    if (_pcm_data.bits_per_sample < 32) {
+        int shift = 32 - _pcm_data.bits_per_sample;
+        // The left shift pushes the sign bit to the msb. The right shift is arithmetic
+        // and preserves the sign bit as the bits return to their original position.
+        sample = (sample << shift) >> shift;
+    }
+
+    return sample;
 }
 
 } // namespace kurt
