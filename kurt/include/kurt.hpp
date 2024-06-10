@@ -1,3 +1,1 @@
-namespace kurt {
-
-} // namespace kurt
+namespace kurt {} // namespace kurt
