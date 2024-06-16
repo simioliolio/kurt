@@ -5,3 +5,5 @@ bazel-testlogs
 
 .DS_Store
 .vscode
+
+*.xcodeproj/*

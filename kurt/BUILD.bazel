@@ -1,9 +1,12 @@
+package(default_visibility = ["//visibility:public"])
+
 cc_library(
     name = "kurt",
     srcs = glob(["src/**/*.h", "src/**/*.cpp"]),
     hdrs = glob(["include/**/*.hpp"]),
     includes = ["include"],
     visibility = ["//visibility:public"],
+    copts = ["-std=c++2b"],
 )
 
 cc_test(
@@ -17,4 +20,5 @@ cc_test(
         "test/resources/16bit_stereo.wav",
         "test/resources/24bit_stereo.wav"],
     size = "small",
+    copts = ["-std=c++2b"],
 )
