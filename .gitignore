@@ -7,3 +7,5 @@ bazel-testlogs
 .vscode
 
 *.xcodeproj/*
+
+build*/**
