@@ -5,8 +5,10 @@
 
 namespace kurt {
 
-std::expected<uint32_t, std::string>
-PCMReader::read(const std::string &file_path) {
+ReadResult PCMReader::read(const std::string &file_path) {
+
+  std::lock_guard<std::mutex> lock(_pcm_data_mutex);
+
   std::ifstream file(file_path, std::ios::binary);
   if (!file.is_open()) {
     return std::unexpected("Failed to open file: " + file_path);
@@ -86,7 +88,12 @@ PCMReader::read(const std::string &file_path) {
   return _pcm_data.data_size;
 }
 
-int32_t PCMReader::sample_at_frame(uint32_t frame, uint8_t channel) {
+int32_t PCMReader::sample_at_frame(uint32_t frame,
+                                   uint8_t channel) const noexcept {
+
+  // TODO: Better thread handling. Prevent costly lock every sample?
+  std::lock_guard<std::mutex> lock(_pcm_data_mutex);
+
   assert(frame < _pcm_data.number_of_frames);
   assert(channel < _pcm_data.channels);
 
@@ -112,6 +119,11 @@ int32_t PCMReader::sample_at_frame(uint32_t frame, uint8_t channel) {
   }
 
   return sample;
+}
+
+const PCMData &PCMReader::pcm_data() const noexcept {
+  std::lock_guard<std::mutex> lock(_pcm_data_mutex);
+  return _pcm_data;
 }
 
 } // namespace kurt

@@ -9,3 +9,5 @@ bazel-testlogs
 *.xcodeproj/*
 
 build*/**
+
+Testing/**

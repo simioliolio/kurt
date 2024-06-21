@@ -1,5 +1,6 @@
 add_library(kurt
     include/kurt.hpp
+    src/kurt.cpp
     include/pcm_reader.hpp
     src/pcm_reader.cpp
 )

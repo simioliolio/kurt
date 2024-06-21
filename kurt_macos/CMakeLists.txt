@@ -6,6 +6,11 @@ target_include_directories(kurt_macos
     PUBLIC
     include
 )
+target_link_libraries(kurt_macos
+    PRIVATE
+    "-framework AudioToolbox"
+    kurt
+)
 
 enable_testing()
 
@@ -14,6 +19,7 @@ add_executable(kurt_macos_test
 )
 target_link_libraries(kurt_macos_test
     PRIVATE
+    kurt
     kurt_macos
     GTest::gtest_main
 )
