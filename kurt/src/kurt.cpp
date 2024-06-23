@@ -36,4 +36,6 @@ const std::span<const float> Kurt::next_frame() noexcept {
   return frame;
 }
 
+const uint32_t &Kurt::current_frame() const noexcept { return _current_frame; }
+
 } // namespace kurt

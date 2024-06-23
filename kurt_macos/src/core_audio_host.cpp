@@ -32,16 +32,6 @@ bool CoreAudioHost::start() {
   checkError(AudioComponentInstanceNew(output_component, &_output_audio_unit),
              "Instantiating the output audio unit");
 
-  AURenderCallbackStruct input_callback;
-  input_callback.inputProc = Callback;
-  input_callback.inputProcRefCon = this;
-
-  checkError(AudioUnitSetProperty(_output_audio_unit,
-                                  kAudioUnitProperty_SetRenderCallback,
-                                  kAudioUnitScope_Input, 0, &input_callback,
-                                  sizeof(input_callback)),
-             "Setting the Output Audio Unit property for rendering callback");
-
   // Get sample rate for _output_audio_unit
   Float64 sample_rate;
   UInt32 sample_rate_size = sizeof(sample_rate);
@@ -55,6 +45,34 @@ bool CoreAudioHost::start() {
               << sample_rate_size << std::endl;
   }
   std::cout << "Sample rate: " << sample_rate << std::endl;
+
+  // Set the stream format
+  AudioStreamBasicDescription asbd;
+  memset(&asbd, 0, sizeof(asbd));
+  asbd.mSampleRate = sample_rate;
+  asbd.mFormatID = kAudioFormatLinearPCM; // Linear PCM format
+  asbd.mFormatFlags = kAudioFormatFlagsNativeFloatPacked;
+  asbd.mFramesPerPacket = 1;
+  asbd.mChannelsPerFrame = 2; // Stereo
+  asbd.mBitsPerChannel = 32;
+  asbd.mBytesPerPacket = asbd.mBytesPerFrame =
+      (asbd.mBitsPerChannel / 8) * asbd.mChannelsPerFrame;
+  asbd.mFramesPerPacket = 1;
+
+  checkError(
+      AudioUnitSetProperty(_output_audio_unit, kAudioUnitProperty_StreamFormat,
+                           kAudioUnitScope_Input, 0, &asbd, sizeof(asbd)),
+      "Setting the Output Audio Unit stream format");
+
+  AURenderCallbackStruct input_callback;
+  input_callback.inputProc = Callback;
+  input_callback.inputProcRefCon = this;
+
+  checkError(AudioUnitSetProperty(_output_audio_unit,
+                                  kAudioUnitProperty_SetRenderCallback,
+                                  kAudioUnitScope_Input, 0, &input_callback,
+                                  sizeof(input_callback)),
+             "Setting the Output Audio Unit property for rendering callback");
 
   checkError(AudioUnitInitialize(_output_audio_unit), "Audio Unit Initialize");
 
@@ -108,11 +126,21 @@ OSStatus CoreAudioHost::callback(void *inRefCon,
                                  const AudioTimeStamp *inTimeStamp,
                                  UInt32 inBusNumber, UInt32 inNumberFrames,
                                  AudioBufferList *ioData) {
+  Float32 *output = (Float32 *)ioData->mBuffers[0].mData;
+  UInt16 number_of_channels = ioData->mBuffers[0].mNumberChannels;
   for (UInt32 frame = 0; frame < inNumberFrames; frame++) {
     const auto audio_frame = _kurt->next_frame();
-    for (UInt32 buffer = 0; buffer < ioData->mNumberBuffers; buffer++) {
-      Float32 *data = (Float32 *)ioData->mBuffers[buffer].mData;
-      (data)[frame] = audio_frame[buffer];
+    for (UInt16 channel = 0; channel < number_of_channels; channel++) {
+      if (channel < audio_frame.size()) {
+        (output)[(frame * number_of_channels) + channel] = audio_frame[channel];
+      } else if (audio_frame.size() == 1) {
+        // Mono
+        (output)[(frame * number_of_channels) + channel] = audio_frame[0];
+      } else {
+        std::cout << "Warning: Unexpected audio_frame.size() == "
+                  << audio_frame.size() << std::endl;
+        (output)[(frame * number_of_channels) + channel] = 0.0f;
+      }
     }
   }
   return noErr;

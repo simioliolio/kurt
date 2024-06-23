@@ -24,6 +24,7 @@ public:
   Status status() const;
 
   const std::span<const float> next_frame() noexcept;
+  const uint32_t &current_frame() const noexcept;
 
 private:
   PCMReader _pcm_reader;

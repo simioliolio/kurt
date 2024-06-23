@@ -9,7 +9,7 @@ namespace kurt {
 
 struct PCMData {
   uint32_t sample_rate;
-  uint8_t channels;
+  uint16_t channels;
   uint16_t bits_per_sample;
   uint32_t data_size;
   uint32_t number_of_frames;
