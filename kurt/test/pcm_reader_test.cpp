@@ -84,3 +84,38 @@ TEST(PCMReaderTest, SampleAtFrame24Bit) {
   sample = reader.sample_at_frame(5, 1);
   ASSERT_EQ(sample, 0) << "Sample value is not correct";
 }
+
+TEST(PCMReaderTest, NormalisedData) {
+  PCMReader reader;
+  auto result = reader.read("kurt/test/resources/16bit_stereo.wav");
+  ASSERT_TRUE(result.has_value()) << result.error();
+
+  auto pcm_data = reader.pcm_data();
+  auto normalised_pcm = pcm_data.normalized_data;
+  ASSERT_EQ(normalised_pcm.size(), 12) << "Normalised data size is not correct";
+
+  ASSERT_NEAR(normalised_pcm[0], 0.0f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[1], 0.0f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[2], 0.5f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[3], 0.5f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[4], 1.0f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[5], 1.0f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[6], -1.0f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[7], -1.0f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[8], -0.5f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[9], -0.5f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[10], 0.0f, 0.0001f)
+      << "Normalized sample is not correct";
+  ASSERT_NEAR(normalised_pcm[11], 0.0f, 0.0001f)
+      << "Normalized sample is not correct";
+}

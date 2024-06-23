@@ -13,7 +13,8 @@ struct PCMData {
   uint16_t bits_per_sample;
   uint32_t data_size;
   uint32_t number_of_frames;
-  std::vector<char> data;
+  std::vector<char> data;             // TODO: Remove?
+  std::vector<float> normalized_data; // Interleaved if stereo
 };
 
 typedef std::expected<uint32_t, std::string> ReadResult;
@@ -39,25 +40,20 @@ public:
   ReadResult read(const std::string &file_path);
 
   /**
-   * @brief Retrieves the sample value at the specified frame and channel.
-   *
-   * This function returns the sample value at the specified frame and channel.
-   * If no channel is specified, it defaults to channel 0.
-   * This method is thread-safe.
+   * Retrieves the sample value at the specified frame and channel.
    *
    * @param frame The frame index.
-   * @param channel The channel index. For stereo, 0 is left, 1 is right.
-   * @return The twos-compliment sample value at the specified frame and
-   * channel.
+   * @param channel The channel index. For stereo, 0 is left and 1 is right.
+   * @return A reference to the sample value at the specified frame and channel.
    */
-  int32_t sample_at_frame(uint32_t frame, uint8_t channel) const noexcept;
+  const float &sample_at_frame(uint32_t frame, uint8_t channel) const noexcept;
 
   /**
    * @brief Get the PCM data.
    *
    * This function returns the PCMData object representing the PCM data.
    * If no audio is loaded, the PCMData object will have all fields set to 0.
-   * This method is thread-safe, and returns a copy.
+   * This method is thread-safe.
    *
    * @return PCMData The PCMData object.
    */

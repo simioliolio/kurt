@@ -78,8 +78,44 @@ ReadResult PCMReader::read(const std::string &file_path) {
   file.read(reinterpret_cast<char *>(&_pcm_data.data_size), 4);
 
   // Read data
+  auto data_pos = file.tellg();
   _pcm_data.data.resize(_pcm_data.data_size);
   file.read(_pcm_data.data.data(), _pcm_data.data_size);
+
+  // Read data and perform float conversion to normalize
+  file.seekg(data_pos);
+  uint16_t bytes_per_sample = _pcm_data.bits_per_sample / 8;
+  uint32_t number_of_samples = _pcm_data.data_size / bytes_per_sample;
+  _pcm_data.normalized_data.resize(number_of_samples);
+  uint32_t bytes_read = 0;
+  for (uint32_t sample_index = 0; sample_index < number_of_samples;
+       sample_index++) {
+    char raw_sample[bytes_per_sample];
+    file.read(raw_sample, bytes_per_sample);
+    bytes_read += bytes_per_sample;
+    // Collect sample bytes and shift to the correct position
+    int32_t sample = 0;
+    for (size_t byte_index = 0; byte_index < bytes_per_sample; byte_index++) {
+      sample |= static_cast<uint8_t>(raw_sample[byte_index])
+                << (byte_index * 8);
+    }
+    // For 32-bit, we are done (as our type is int32_t and honors
+    // twos-compliment) For lower bitrates, we need to sign-extend the sample.
+    if (_pcm_data.bits_per_sample < 32) {
+      int shift = 32 - _pcm_data.bits_per_sample;
+      // The left shift pushes the sign bit to the msb. The right shift is
+      // arithmetic and preserves the sign bit as the bits return to their
+      // original position.
+      sample = (sample << shift) >> shift;
+    }
+    // Normalize the sample, so that it is in the range [-1, 1]
+    _pcm_data.normalized_data[sample_index] =
+        static_cast<float>(sample) /
+        static_cast<float>((1 << (_pcm_data.bits_per_sample - 1)) - 1);
+  }
+  if (bytes_read != _pcm_data.data_size) {
+    return std::unexpected("Failed to read all data");
+  }
 
   _pcm_data.number_of_frames =
       _pcm_data.data_size /
@@ -88,37 +124,12 @@ ReadResult PCMReader::read(const std::string &file_path) {
   return _pcm_data.data_size;
 }
 
-int32_t PCMReader::sample_at_frame(uint32_t frame,
-                                   uint8_t channel) const noexcept {
-
-  // TODO: Better thread handling. Prevent costly lock every sample?
+const float &PCMReader::sample_at_frame(uint32_t frame,
+                                        uint8_t channel) const noexcept {
   std::lock_guard<std::mutex> lock(_pcm_data_mutex);
-
-  assert(frame < _pcm_data.number_of_frames);
   assert(channel < _pcm_data.channels);
-
-  auto bytes_per_sample = _pcm_data.bits_per_sample / 8;
-  auto sample_index = frame * _pcm_data.channels + channel;
-  auto byte_index = sample_index * bytes_per_sample;
-
-  int32_t sample = 0;
-
-  // Collect sample bytes and shift to the correct position
-  for (size_t i = 0; i < bytes_per_sample; i++) {
-    sample |= static_cast<uint8_t>(_pcm_data.data[byte_index + i]) << (i * 8);
-  }
-
-  // For 32-bit, we are done (as our type is int32_t and honors twos-compliment)
-  // For lower bitrates, we need to sign-extend the sample.
-  if (_pcm_data.bits_per_sample < 32) {
-    int shift = 32 - _pcm_data.bits_per_sample;
-    // The left shift pushes the sign bit to the msb. The right shift is
-    // arithmetic and preserves the sign bit as the bits return to their
-    // original position.
-    sample = (sample << shift) >> shift;
-  }
-
-  return sample;
+  assert(frame < _pcm_data.number_of_frames);
+  return _pcm_data.normalized_data[(frame * _pcm_data.channels) + channel];
 }
 
 const PCMData &PCMReader::pcm_data() const noexcept {

@@ -2,19 +2,14 @@
 
 #include "pcm_reader.hpp"
 
+#include <span>
+
 namespace kurt {
 
 class Kurt {
 
   struct Status {
     bool playing = false;
-  };
-
-  // TODO: A better model for this? Could avoid the value copy somehow?
-  // TODO: Don't assume double?
-  struct Frame {
-    Frame(double left, double right) : samples{left, right} {};
-    double samples[2];
   };
 
 public:
@@ -28,12 +23,13 @@ public:
 
   Status status() const;
 
-  Frame next_frame() noexcept;
+  const std::span<const float> next_frame() noexcept;
 
 private:
   PCMReader _pcm_reader;
   Status _status = {};
   uint32_t _current_frame = 0;
+  std::vector<float> _empty_frame = {0.0f, 0.0f};
 };
 
 } // namespace kurt

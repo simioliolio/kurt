@@ -109,10 +109,10 @@ OSStatus CoreAudioHost::callback(void *inRefCon,
                                  UInt32 inBusNumber, UInt32 inNumberFrames,
                                  AudioBufferList *ioData) {
   for (UInt32 frame = 0; frame < inNumberFrames; frame++) {
-    const auto &audio_frame = _kurt->next_frame();
+    const auto audio_frame = _kurt->next_frame();
     for (UInt32 buffer = 0; buffer < ioData->mNumberBuffers; buffer++) {
       Float32 *data = (Float32 *)ioData->mBuffers[buffer].mData;
-      (data)[frame] = audio_frame.samples[buffer];
+      (data)[frame] = audio_frame[buffer];
     }
   }
   return noErr;
