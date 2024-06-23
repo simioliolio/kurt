@@ -20,6 +20,7 @@ Kurt::Status Kurt::status() const { return _status; }
 
 const std::span<const float> Kurt::next_frame() noexcept {
   const auto &pcm_data = _pcm_reader.pcm_data();
+  // TODO: Fix non-thread-safe use of pcm_data
   if (pcm_data.number_of_frames == 0) {
     std::cout << "no frames" << std::endl;
     return std::span<const float>(_empty_frame);
