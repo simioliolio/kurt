@@ -9,7 +9,7 @@ ParseResult PCMParser::parse(const std::string &file_path) const noexcept {
 
   std::ifstream file(file_path, std::ios::binary);
 
-  PCMAudioData pcm_data;
+  PCMAudioData pcm_data = {0, 0, 0, {}};
 
   if (!file.is_open()) {
     return std::unexpected("Failed to open file: " + file_path);

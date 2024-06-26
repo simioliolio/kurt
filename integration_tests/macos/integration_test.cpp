@@ -23,8 +23,8 @@ protected:
 };
 
 TEST_F(MacIntegration, AudioPlaysAndLoops) {
-  auto read_result = kurt_ptr->load_wav_file("resources/440Hz2s.wav");
-  ASSERT_TRUE(read_result.has_value()) << read_result.error();
+  auto error = kurt_ptr->load_wav_file("resources/440Hz2s.wav");
+  ASSERT_FALSE(error) << error.value();
 
   kurt_ptr->play();
 

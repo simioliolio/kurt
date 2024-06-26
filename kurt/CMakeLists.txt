@@ -1,8 +1,6 @@
 add_library(kurt
     include/kurt.hpp
     src/kurt.cpp
-    include/pcm_reader.hpp
-    src/pcm_reader.cpp
     include/pcm_parser.hpp
     src/pcm_parser.cpp
 )
@@ -17,8 +15,8 @@ enable_testing()
 include(GoogleTest)
 
 add_executable(kurt_test
+    test/kurt_test.cpp
     test/pcm_parser_test.cpp
-    test/pcm_reader_test.cpp
 )
 target_link_libraries(kurt_test
     PRIVATE
