@@ -3,6 +3,8 @@ add_library(kurt
     src/kurt.cpp
     include/pcm_reader.hpp
     src/pcm_reader.cpp
+    include/pcm_parser.hpp
+    src/pcm_parser.cpp
 )
 
 target_include_directories(kurt
@@ -12,7 +14,10 @@ target_include_directories(kurt
 
 enable_testing()
 
+include(GoogleTest)
+
 add_executable(kurt_test
+    test/pcm_parser_test.cpp
     test/pcm_reader_test.cpp
 )
 target_link_libraries(kurt_test
@@ -20,8 +25,6 @@ target_link_libraries(kurt_test
     kurt
     GTest::gtest_main
 )
-
-include(GoogleTest)
 gtest_discover_tests(kurt_test)
 
 # Add test data
