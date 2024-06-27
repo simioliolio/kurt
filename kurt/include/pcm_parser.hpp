@@ -2,14 +2,9 @@
 #include <memory>
 #include <vector>
 
-namespace kurt {
+#include "pcm_audio_data.hpp"
 
-struct PCMAudioData {
-  uint32_t sample_rate;
-  uint16_t channels;
-  uint32_t number_of_frames;
-  std::vector<float> normalized_data; // Interleaved if multichannel
-};
+namespace kurt {
 
 typedef std::expected<std::unique_ptr<PCMAudioData>, std::string> ParseResult;
 
