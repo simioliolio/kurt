@@ -1,4 +1,6 @@
 add_library(kurt
+    include/grain.hpp
+    src/grain.cpp
     include/kurt.hpp
     src/kurt.cpp
     include/pcm_parser.hpp
@@ -15,6 +17,7 @@ enable_testing()
 include(GoogleTest)
 
 add_executable(kurt_test
+    test/grain_test.cpp
     test/kurt_test.cpp
     test/pcm_parser_test.cpp
 )
