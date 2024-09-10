@@ -16,9 +16,10 @@ namespace kurt {
  */
 class ThreadSafeAudioBuffer {
 public:
-  ThreadSafeAudioBuffer(std::unique_ptr<PCMAudioData> pcm_data,
-                        std::unique_ptr<std::binary_semaphore> pcm_data_sem =
-                            std::make_unique<std::binary_semaphore>(1));
+  ThreadSafeAudioBuffer(
+      std::unique_ptr<PCMAudioData> pcm_data,
+      std::unique_ptr<std::binary_semaphore> pcm_data_sem =
+          std::make_unique<std::binary_semaphore>(1)) noexcept;
 
   ThreadSafeAudioBuffer(const ThreadSafeAudioBuffer &other) = delete;
   ThreadSafeAudioBuffer(ThreadSafeAudioBuffer &&other) = delete;
@@ -31,17 +32,17 @@ public:
    * @note Call `acquire` before calling get_audio_data(), then `release` after
    * you are done.
    */
-  PCMAudioData &get_audio_data() const;
+  PCMAudioData &get_audio_data() const noexcept;
 
-  void set_audio_data(std::unique_ptr<PCMAudioData> pcm_data);
+  void set_audio_data(std::unique_ptr<PCMAudioData> pcm_data) noexcept;
 
   /**
    * Incorrect use of these functions can lead to deadlocks.
    * TODO: Return a RAII object that acquires the semaphore in the constructor
    * and releases it in the destructor.
    */
-  void acquire();
-  void release();
+  void acquire() noexcept;
+  void release() noexcept;
 
 private:
   std::unique_ptr<PCMAudioData> _pcm_data;
