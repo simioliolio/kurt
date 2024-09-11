@@ -7,6 +7,7 @@ add_library(kurt
     src/kurt.cpp
     include/pcm_parser.hpp
     src/pcm_parser.cpp
+    include/sequencer.hpp
     include/thread_safe_audio_buffer.hpp
     src/thread_safe_audio_buffer.cpp
 )
@@ -25,6 +26,7 @@ add_executable(kurt_test
     test/grain_test.cpp
     test/kurt_test.cpp
     test/pcm_parser_test.cpp
+    test/sequencer_test.cpp
     test/thread_safe_audio_buffer_test.cpp
 )
 target_link_libraries(kurt_test
