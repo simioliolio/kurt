@@ -10,6 +10,7 @@ void Conductor::next_frame() noexcept {
 
   if (_frame_count % _frames_per_subdivision == 0) {
     _playhead++;
+    // TODO: Optimise by calculating number_of_subdivisions_per_loop once
     if (_playhead >= _subdivisions_per_beat * _number_of_beats) {
       _playhead = 0;
       _frame_count = 0;
