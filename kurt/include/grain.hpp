@@ -29,19 +29,25 @@ public:
   Grain(std::shared_ptr<PCMAudioData> pcm_data);
 
   /**
-   * @brief Sets the position of the grain.
+   * @brief Sets the starting frame of the grain.
    *
-   * @param position The new position of the grain, in frames.
+   * @param frame The new starting frame of the grain.
    * Ie, one frame is a sample for each channel.
    */
-  void set_position(int64_t frame) noexcept;
+  void set_start_frame(int64_t start_position) noexcept;
 
   /**
    * @brief Gets the current position of the grain.
    *
-   * @return The current position of the grain, in frames.
+   * @return The current position of the grain, in frames relative
+   * to all pcm data.
    */
-  int64_t get_position() const noexcept;
+  int64_t get_pcm_data_position() const noexcept;
+
+  /**
+   * @brief Sets the duration of the grain.
+   */
+  void set_duration(int64_t duration) noexcept;
 
   /**
    * @brief Retrieves the next frame of audio data from the grain.
@@ -73,13 +79,17 @@ public:
 
 private:
   std::shared_ptr<PCMAudioData>
-      _pcm_data;            ///< The PCM audio data associated with the grain.
-  int64_t _position = 0.0f; ///< The current position of the grain.
-  int32_t _attack = 0;      ///< The attack value for the grain.
-  int32_t _decay = 0;       ///< The decay value for the grain.
+      _pcm_data;             ///< The PCM audio data associated with the grain.
+  uint64_t _start_frame = 0; ///< The start position of the grain.
+  uint64_t _pcm_data_position = 0.0f; ///< The current position of the grain.
+  uint64_t _duration = 1.0f;          ///< The duration of the grain, in frames.
+  uint32_t _attack = 0;               ///< The attack value for the grain.
+  uint32_t _decay = 0;                ///< The decay value for the grain.
   std::vector<float> _output_frame = {
       0.0f, 0.0f}; ///< A buffer to store the output frame.
   float grain_amp_for_frame(int64_t frame) const noexcept;
+  void verify_start_frame_and_duration();
+  uint64_t grain_relative_position(uint64_t pcm_data_position) const noexcept;
 };
 
 } // namespace kurt
