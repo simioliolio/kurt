@@ -19,3 +19,7 @@ TEST_F(SequencerTest, SetAndRecall) {
   ASSERT_EQ(sequencer.get(1), std::vector<std::string>{"one"});
   ASSERT_EQ(sequencer.get(2), std::vector<std::string>{"two"});
 }
+
+TEST_F(SequencerTest, ReturnsEmptyVectorIfKeyNotFound) {
+  ASSERT_EQ(sequencer.get(0), std::vector<std::string>{});
+}

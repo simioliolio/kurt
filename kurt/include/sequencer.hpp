@@ -20,10 +20,18 @@ public:
 
   void set(K key, std::vector<V> values) noexcept { _sequence[key] = values; }
 
-  std::vector<V> get(K key) const noexcept { return _sequence.at(key); }
+  std::vector<V> get(K key) const noexcept {
+    if (!contains(key)) {
+      return {};
+    }
+    return _sequence.at(key);
+  }
 
 private:
   std::unordered_map<K, std::vector<V>> _sequence;
+  bool contains(K key) const noexcept {
+    return _sequence.find(key) != _sequence.end();
+  }
 };
 
 } // namespace kurt
