@@ -3,6 +3,8 @@ add_library(kurt
     src/conductor.cpp
     include/grain.hpp
     src/grain.cpp
+    include/grain_store.hpp
+    src/grain_store.cpp
     include/kurt.hpp
     src/kurt.cpp
     include/pcm_parser.hpp
@@ -24,6 +26,7 @@ include(GoogleTest)
 add_executable(kurt_test
     test/conductor_test.cpp
     test/grain_test.cpp
+    test/grain_store_test.cpp
     test/kurt_test.cpp
     test/pcm_parser_test.cpp
     test/sequencer_test.cpp
