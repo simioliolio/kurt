@@ -35,10 +35,7 @@ void Grain::verify_start_frame_and_duration() {
 }
 
 const std::span<const float> Grain::next_frame() noexcept {
-  if (_pcm_data_position >= _pcm_data->number_of_frames) {
-    std::cout << "Warning: Grain position exceeds number of frames, outputting "
-                 "silence"
-              << std::endl;
+  if (_state == Grain::State::INACTIVE) {
     for (int i = 0; i < _pcm_data->channels; i++) {
       _output_frame[i] = 0.0f;
     }
@@ -51,12 +48,20 @@ const std::span<const float> Grain::next_frame() noexcept {
     _output_frame[i] = start_index[i] * amp;
   }
   _pcm_data_position++;
+  if (_pcm_data_position >= _start_frame + _duration) {
+    // Grain has finished, and should be inactive for next frame
+    _state = Grain::State::INACTIVE;
+  }
   return std::span<const float>(_output_frame.data(), _output_frame.size());
 }
 
 void Grain::set_attack(int32_t attack) noexcept { _attack = attack; }
 
 void Grain::set_decay(int32_t decay) noexcept { _decay = decay; }
+
+void Grain::make_active() noexcept { _state = Grain::State::ACTIVE; }
+
+Grain::State Grain::get_state() const noexcept { return _state; };
 
 float Grain::grain_amp_for_frame(int64_t frame) const noexcept {
   float amp = 1.0f;

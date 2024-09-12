@@ -16,10 +16,19 @@ namespace kurt {
  * play back grains of audio data. Grains are typically used in granular
  * synthesis to create complex sounds from simple audio data.
  *
- * @note This class is not thread-safe.
+ * @note This class is not thread-safe. Try to set start frame, duration etc
+ * then call next_frame. Changing parameters while calling next_frame may cause
+ * unexpected behaviour.
  */
 class Grain {
 public:
+  /**
+   * @brief Represents the state of a grain.
+   *
+   * If inactive, the grain free to be reused
+   */
+  enum State { INACTIVE, ACTIVE };
+
   /**
    * @brief Constructs a Grain object with the specified PCM audio data.
    *
@@ -77,6 +86,20 @@ public:
    */
   void set_decay(int32_t decay) noexcept;
 
+  /**
+   * @brief Set the grain's state to ACTIVE
+   *
+   * Only when ACTIVE will the grain return non-silence.
+   *
+   * The grain will set itself to INACTIVE when it has finished playing.
+   */
+  void make_active() noexcept;
+
+  /**
+   * @brief Get the current state
+   */
+  State get_state() const noexcept;
+
 private:
   std::shared_ptr<PCMAudioData>
       _pcm_data;             ///< The PCM audio data associated with the grain.
@@ -86,7 +109,8 @@ private:
   uint32_t _attack = 0;               ///< The attack value for the grain.
   uint32_t _decay = 0;                ///< The decay value for the grain.
   std::vector<float> _output_frame = {
-      0.0f, 0.0f}; ///< A buffer to store the output frame.
+      0.0f, 0.0f};                ///< A buffer to store the output frame.
+  State _state = State::INACTIVE; ///< The state of the grain.
   float grain_amp_for_frame(int64_t frame) const noexcept;
   void verify_start_frame_and_duration();
   uint64_t grain_relative_position(uint64_t pcm_data_position) const noexcept;

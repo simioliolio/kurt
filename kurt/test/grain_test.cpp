@@ -37,15 +37,12 @@ TEST_F(GrainTest, PositionIsStartByDefault) {
 
   auto position = grain->get_pcm_data_position();
   ASSERT_EQ(position, 0);
-
-  auto frame = grain->next_frame();
-  ASSERT_EQ(frame[0], 0.0f);
-  ASSERT_EQ(frame[1], 0.0f);
 }
 
 TEST_F(GrainTest, GetsSamplesFromPosition) {
 
   grain->set_start_frame(2);
+  grain->make_active();
 
   auto position = grain->get_pcm_data_position();
   ASSERT_EQ(position, 2);
@@ -58,6 +55,7 @@ TEST_F(GrainTest, GetsSamplesFromPosition) {
 TEST_F(GrainTest, IncrementsPosition) {
 
   grain->set_start_frame(0);
+  grain->make_active();
 
   auto position = grain->get_pcm_data_position();
   ASSERT_EQ(position, 0);
@@ -79,6 +77,9 @@ TEST_F(GrainTest, AppliesAttackBasedOnEnvelope) {
   grain = std::make_shared<Grain>(
       Grain(std::make_shared<PCMAudioData>(stub_full_scale_pcm_data())));
   grain->set_attack(4);
+  grain->set_duration(5);
+  grain->make_active();
+
   auto frame = grain->next_frame();
   ASSERT_NEAR(frame[0], 0.000f, 0.001f);
   ASSERT_NEAR(frame[1], 0.000f, 0.001f);
@@ -105,6 +106,8 @@ TEST_F(GrainTest, AppliesDecayBasedOnEnvelope) {
   grain->set_start_frame(0);
   grain->set_duration(5);
   grain->set_decay(4);
+  grain->make_active();
+
   auto frame = grain->next_frame();
   ASSERT_NEAR(frame[0], 1.000f, 0.001f); // Unmodified
   ASSERT_NEAR(frame[1], 1.000f, 0.001f); //
@@ -128,6 +131,9 @@ TEST_F(GrainTest, AppliesDecayBasedOnEnvelope) {
 TEST_F(GrainTest, AttackAppliedWhenNonZeroPosition) {
   grain->set_attack(3);
   grain->set_start_frame(2);
+  grain->set_duration(4);
+  grain->make_active();
+
   auto frame = grain->next_frame();
   ASSERT_NEAR(frame[0], 0.0f, 0.001f);
   ASSERT_NEAR(frame[1], 0.0f, 0.001f);
@@ -140,4 +146,19 @@ TEST_F(GrainTest, AttackAppliedWhenNonZeroPosition) {
   frame = grain->next_frame();
   ASSERT_NEAR(frame[0], -0.2f, 0.001f);
   ASSERT_NEAR(frame[1], -0.2f, 0.001f);
+}
+
+TEST_F(GrainTest, GrainBecomesActiveWhenMadeActive) {
+  ASSERT_EQ(grain->get_state(), Grain::State::INACTIVE);
+  grain->make_active();
+  ASSERT_EQ(grain->get_state(), Grain::State::ACTIVE);
+}
+
+TEST_F(GrainTest, GrainBecomesInactiveWhenFinished) {
+  grain->set_duration(3);
+  grain->make_active();
+  auto frame = grain->next_frame();
+  frame = grain->next_frame();
+  frame = grain->next_frame();
+  ASSERT_EQ(grain->get_state(), Grain::State::INACTIVE);
 }
