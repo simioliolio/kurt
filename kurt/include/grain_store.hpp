@@ -1,3 +1,4 @@
+#include <memory>
 #include <ranges>
 #include <vector>
 
@@ -8,7 +9,7 @@ namespace kurt {
 class GrainStore {
 
 public:
-  explicit GrainStore(std::vector<Grain> &grains) noexcept;
+  explicit GrainStore(std::unique_ptr<std::vector<Grain>> grains) noexcept;
 
   /**
    * @brief Get the next available grain.
@@ -23,13 +24,13 @@ public:
    * @return A ranges filter view of all active grains
    */
   auto active_grains() {
-    return _grains | std::views::filter([](const Grain &grain) {
-             return grain.get_state() == Grain::State::ACTIVE;
-           });
+    return *_grains | std::views::filter([](const Grain &grain) {
+      return grain.get_state() == Grain::State::ACTIVE;
+    });
   }
 
 private:
-  std::vector<Grain> &_grains;
+  std::unique_ptr<std::vector<Grain>> _grains;
 };
 
 } // namespace kurt

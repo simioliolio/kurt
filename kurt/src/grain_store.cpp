@@ -5,10 +5,11 @@
 
 namespace kurt {
 
-GrainStore::GrainStore(std::vector<Grain> &grains) noexcept : _grains(grains) {}
+GrainStore::GrainStore(std::unique_ptr<std::vector<Grain>> grains) noexcept
+    : _grains(std::move(grains)) {}
 
 Grain &GrainStore::available_grain() {
-  for (auto &grain : _grains) {
+  for (auto &grain : *_grains) {
     if (grain.get_state() == Grain::State::INACTIVE) {
       return grain;
     }
