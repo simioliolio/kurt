@@ -3,6 +3,7 @@ add_library(kurt
     src/conductor.cpp
     include/grain.hpp
     src/grain.cpp
+    include/grain_event.hpp
     include/grain_store.hpp
     src/grain_store.cpp
     include/kurt.hpp
