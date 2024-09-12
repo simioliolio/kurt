@@ -7,17 +7,20 @@ namespace kurt {
  * @brief The Conductor class acts as a metronome for the system,
  * converting between frames (samples for a given audio clock tick)
  * and subdivisions (a unit of time based on the BPM)
+ *
+ * This class is not thread safe. It is intended to be used in a single
+ * audio thread.
  */
 class Conductor {
 
 public:
-  Conductor(uint32_t sample_rate) noexcept;
+  explicit Conductor(uint32_t sample_rate) noexcept;
 
-  Conductor() = delete;
-  Conductor(const Conductor &) = delete;
-  Conductor(Conductor &&) = delete;
-  Conductor &operator=(const Conductor &) = delete;
-  Conductor &operator=(Conductor &&) = delete;
+  Conductor() = default;
+  Conductor(const Conductor &) = default;
+  Conductor(Conductor &&) = default;
+  Conductor &operator=(const Conductor &) = default;
+  Conductor &operator=(Conductor &&) = default;
 
   ~Conductor() = default;
 
@@ -53,8 +56,15 @@ public:
    */
   uint16_t get_playhead() const noexcept { return _playhead; };
 
+  /**
+   * @brief Set the sample rate of the conductor
+   */
+  void set_sample_rate(uint32_t sample_rate) noexcept {
+    _sample_rate = sample_rate;
+  };
+
 private:
-  uint32_t _sample_rate;
+  uint32_t _sample_rate = 44100;
   uint16_t _bpm = 120;
   uint16_t _subdivisions_per_beat = 4;
   uint32_t _number_of_beats = 4;
