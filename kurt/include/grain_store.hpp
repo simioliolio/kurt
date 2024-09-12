@@ -10,6 +10,10 @@ class GrainStore {
 
 public:
   explicit GrainStore(std::unique_ptr<std::vector<Grain>> grains) noexcept;
+  GrainStore(GrainStore &&) = default;
+  GrainStore &operator=(GrainStore &&) = default;
+  GrainStore(const GrainStore &) = delete;
+  GrainStore &operator=(const GrainStore &) = delete;
 
   /**
    * @brief Get the next available grain.
