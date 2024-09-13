@@ -26,7 +26,9 @@ TEST(ThreadSafeAudioBufferTest, TestConcurrency) {
         buffer.release();
 
         // set
+        buffer.acquire();
         buffer.set_audio_data(std::make_unique<PCMAudioData>());
+        buffer.release();
 
         ++access_count;
       }

@@ -116,7 +116,7 @@ ParseResult PCMParser::parse(const std::string &file_path) const noexcept {
 
   pcm_data.number_of_frames =
       data_size / (pcm_data.channels * bytes_per_sample);
-
+  std::cout << "Loaded " << pcm_data.number_of_frames << " frames" << std::endl;
   return std::make_unique<PCMAudioData>(pcm_data);
 }
 } // namespace kurt

@@ -5,15 +5,26 @@
 
 using namespace kurt;
 
+class StubAudioBuffer : public AudioBuffer {
+public:
+  bool has_audio_data() const noexcept override { return false; }
+
+  PCMAudioData &get_audio_data() const override {
+    throw std::runtime_error("Audio data not set");
+  }
+};
+
 class GrainStoreTest : public ::testing::Test {
 protected:
   std::unique_ptr<std::vector<Grain>> grains =
       std::make_unique<std::vector<Grain>>(std::vector<Grain>());
+  std::shared_ptr<StubAudioBuffer> stub_audio_buffer =
+      std::make_shared<StubAudioBuffer>();
   std::vector<Grain> *grains_ptr;
   std::shared_ptr<GrainStore> grain_store;
 
   void SetUp() override {
-    grains->resize(5, Grain(std::make_shared<PCMAudioData>(stub_pcm_data())));
+    grains->resize(5, Grain(stub_audio_buffer));
     grains_ptr = grains.get();
     grain_store = std::make_shared<GrainStore>(std::move(grains));
   }

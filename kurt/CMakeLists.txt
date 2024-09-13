@@ -1,4 +1,5 @@
 add_library(kurt
+    include/audio_buffer.hpp
     include/conductor.hpp
     src/conductor.cpp
     include/grain.hpp

@@ -6,21 +6,27 @@ Conductor::Conductor(uint32_t sample_rate) noexcept
     : _sample_rate(sample_rate) {}
 
 void Conductor::next_frame() noexcept {
-  _frame_count++;
-
   if (_frame_count % _frames_per_subdivision == 0) {
-    _playhead++;
+
+    // TODO: Could optimise by performing division once and
+    // using remainer to set new subdivision
+    _playhead = _frame_count / _frames_per_subdivision;
+
     // TODO: Optimise by calculating number_of_subdivisions_per_loop once
     if (_playhead >= _subdivisions_per_beat * _number_of_beats) {
       _playhead = 0;
       _frame_count = 0;
     }
+
+    // Set new subdivision. On next frame, this will likely be cleared
     _new_subdivision = _playhead;
   } else {
     if (_new_subdivision.has_value()) {
       _new_subdivision = std::nullopt;
     }
   }
+
+  _frame_count++;
 }
 
 void Conductor::set_bpm(uint16_t bpm) noexcept {
@@ -46,5 +52,10 @@ void Conductor::calculate_frames_per_subdivision() noexcept {
 std::optional<uint16_t> Conductor::new_subdivision() const noexcept {
   return _new_subdivision;
 }
+
+void Conductor::set_sample_rate(uint32_t sample_rate) noexcept {
+  _sample_rate = sample_rate;
+  calculate_frames_per_subdivision();
+};
 
 } // namespace kurt

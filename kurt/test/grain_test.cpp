@@ -6,14 +6,40 @@
 
 using namespace kurt;
 
+class StubAudioBuffer : public AudioBuffer {
+public:
+  bool has_audio_data() const noexcept override { return true; }
+
+  PCMAudioData &get_audio_data() const override { return _pcm_data; }
+
+  void set_audio_data(PCMAudioData pcm_data) noexcept { _pcm_data = pcm_data; }
+
+  PCMAudioData stub_pcm_data() {
+    return {44100,
+            2,
+            6,
+            {0.0f, 0.0f, 0.5f, 0.5f, 1.0f, 1.0f, -1.0f, -1.0f, -0.5f, -0.5f,
+             -0.2f, -0.2f}};
+  }
+
+  PCMAudioData stub_full_scale_pcm_data() {
+    return {44100,
+            2,
+            5,
+            {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
+  }
+
+private:
+  mutable PCMAudioData _pcm_data = stub_pcm_data();
+};
+
 class GrainTest : public ::testing::Test {
 protected:
   std::shared_ptr<Grain> grain;
+  std::shared_ptr<StubAudioBuffer> _stub_audio_buffer =
+      std::make_shared<StubAudioBuffer>();
 
-  void SetUp() override {
-    grain = std::make_shared<Grain>(
-        Grain(std::make_shared<PCMAudioData>(stub_pcm_data())));
-  }
+  void SetUp() override { grain = std::make_shared<Grain>(_stub_audio_buffer); }
 
   PCMAudioData stub_pcm_data() {
     return {44100,
@@ -74,8 +100,7 @@ TEST_F(GrainTest, ReturnsCorrectNumberOfChannels) {
 }
 
 TEST_F(GrainTest, AppliesAttackBasedOnEnvelope) {
-  grain = std::make_shared<Grain>(
-      Grain(std::make_shared<PCMAudioData>(stub_full_scale_pcm_data())));
+  _stub_audio_buffer->set_audio_data(stub_full_scale_pcm_data());
   grain->set_attack(4);
   grain->set_duration(5);
   grain->make_active();
@@ -101,8 +126,7 @@ TEST_F(GrainTest, AppliesAttackBasedOnEnvelope) {
 }
 
 TEST_F(GrainTest, AppliesDecayBasedOnEnvelope) {
-  grain = std::make_shared<Grain>(
-      Grain(std::make_shared<PCMAudioData>(stub_full_scale_pcm_data())));
+  _stub_audio_buffer->set_audio_data(stub_full_scale_pcm_data());
   grain->set_start_frame(0);
   grain->set_duration(5);
   grain->set_decay(4);

@@ -5,8 +5,12 @@
 
 namespace kurt {
 
-Grain::Grain(std::shared_ptr<PCMAudioData> pcm_data) : _pcm_data(pcm_data) {
-  _output_frame.resize(_pcm_data->channels);
+Grain::Grain(std::shared_ptr<AudioBuffer> audio_buffer)
+    : _audio_buffer(audio_buffer) {
+  if (_audio_buffer->has_audio_data()) {
+    auto pcm_data = _audio_buffer->get_audio_data();
+    _output_frame.resize(pcm_data.channels);
+  }
 }
 
 void Grain::set_start_frame(int64_t start_frame) noexcept {
@@ -26,25 +30,37 @@ void Grain::set_duration(int64_t duration) noexcept {
 }
 
 void Grain::verify_start_frame_and_duration() {
-  if (_start_frame + _duration > _pcm_data->number_of_frames) {
+  if (!_audio_buffer->has_audio_data()) {
+    return;
+  }
+  auto pcm_data = _audio_buffer->get_audio_data();
+  if (_start_frame + _duration > pcm_data.number_of_frames) {
     std::cout << "Warning: Grain duration exceeds number of frames"
               << std::endl;
     std::cout << "Shortening grain to the end of pcm_data..." << std::endl;
-    _duration = _pcm_data->number_of_frames - _start_frame;
+    _duration = pcm_data.number_of_frames - _start_frame;
   }
 }
 
 const std::span<const float> Grain::next_frame() noexcept {
-  if (_state == Grain::State::INACTIVE) {
-    for (int i = 0; i < _pcm_data->channels; i++) {
-      _output_frame[i] = 0.0f;
-    }
-    return std::span<const float>(_output_frame.data(), _output_frame.size());
+  if (!_audio_buffer->has_audio_data()) {
+    std::cout << "grain: Warning: No pcm data" << std::endl;
+    return std::span<const float>(_silent_frame.data(), _silent_frame.size());
   }
-  auto start_index = _pcm_data->normalized_data.data() +
-                     _pcm_data_position * _pcm_data->channels;
+  PCMAudioData &pcm_data = _audio_buffer->get_audio_data();
+
+  if (_pcm_data_position >= pcm_data.number_of_frames) {
+    std::cout << "Warning: position beyond end of pcm_data, outputting silence"
+              << std::endl;
+    return std::span<const float>(_silent_frame.data(), _silent_frame.size());
+  }
+  if (_state == Grain::State::INACTIVE) {
+    return std::span<const float>(_silent_frame.data(), _silent_frame.size());
+  }
+  auto start_index =
+      pcm_data.normalized_data.data() + _pcm_data_position * pcm_data.channels;
   float amp = grain_amp_for_frame(_pcm_data_position);
-  for (int i = 0; i < _pcm_data->channels; i++) {
+  for (int i = 0; i < pcm_data.channels; i++) {
     _output_frame[i] = start_index[i] * amp;
   }
   _pcm_data_position++;
@@ -73,7 +89,7 @@ float Grain::grain_amp_for_frame(int64_t frame) const noexcept {
     amp = static_cast<float>(frames_remaining - 1) / static_cast<float>(_decay);
   }
   // TODO: Could manually clamp to avoid including <algorithm>
-  amp = std::clamp(amp, 0.0f, 1.0f);
+  amp = std::clamp(amp, -1.0f, 1.0f);
   return amp;
 }
 

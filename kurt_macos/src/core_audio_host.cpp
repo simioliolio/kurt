@@ -46,6 +46,8 @@ bool CoreAudioHost::start() {
   }
   std::cout << "Sample rate: " << sample_rate << std::endl;
 
+  _kurt->set_sample_rate(sample_rate);
+
   // Set the stream format
   AudioStreamBasicDescription asbd;
   memset(&asbd, 0, sizeof(asbd));
@@ -63,6 +65,8 @@ bool CoreAudioHost::start() {
       AudioUnitSetProperty(_output_audio_unit, kAudioUnitProperty_StreamFormat,
                            kAudioUnitScope_Input, 0, &asbd, sizeof(asbd)),
       "Setting the Output Audio Unit stream format");
+
+  // TODO: Listen for sample rate changes and forward to kurt
 
   AURenderCallbackStruct input_callback;
   input_callback.inputProc = Callback;

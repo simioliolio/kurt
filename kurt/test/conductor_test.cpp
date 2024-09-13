@@ -22,6 +22,7 @@ TEST_F(ConductorTest, NewSubdivisionAfterSomeFrames) {
   auto frames_per_beat = sample_rate / beats_per_second;
   auto frames_per_subdivision = frames_per_beat / subdivisions_per_beat;
 
+  conductor.next_frame(); // Get the conductor started
   ASSERT_EQ(conductor.new_subdivision(), 0);
 
   for (int i = 0; i < frames_per_subdivision - 1; i++) {
@@ -47,7 +48,7 @@ TEST_F(ConductorTest, SubdivisionWrapsBasedOnNumberOfBeats) {
   auto frames_per_loop = frames_per_beat * number_of_beats;
 
   // Advance to the last subdivision of the last beat
-  for (int i = 0; i < frames_per_loop - 1; i++) {
+  for (int i = 0; i < frames_per_loop; i++) {
     conductor.next_frame();
   }
 

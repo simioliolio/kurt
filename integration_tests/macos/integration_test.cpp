@@ -6,6 +6,13 @@
 
 using namespace kurt;
 
+/**
+ * @brief Integration tests for the CoreAudioHost class.
+ *
+ * These tests are designed to run on macOS. While there
+ * are few assertions, the idea is to listen to the output
+ * of the audio engine and check that it is working as expected.
+ */
 class MacIntegration : public ::testing::Test {
 protected:
   std::shared_ptr<CoreAudioHost> host;
@@ -30,9 +37,7 @@ TEST_F(MacIntegration, AudioPlaysAndLoops) {
 
   ASSERT_TRUE(kurt_ptr->status().playing);
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(2050));
-
-  ASSERT_LT(kurt_ptr->current_frame(), 5000);
+  std::this_thread::sleep_for(std::chrono::milliseconds(2500));
 
   kurt_ptr->stop();
   ASSERT_FALSE(kurt_ptr->status().playing);

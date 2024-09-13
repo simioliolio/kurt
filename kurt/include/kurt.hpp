@@ -1,6 +1,11 @@
 #pragma once
 
+#include "conductor.hpp"
+#include "grain_event.hpp"
+#include "grain_store.hpp"
 #include "pcm_parser.hpp"
+#include "sequencer.hpp"
+#include "thread_safe_audio_buffer.hpp"
 
 #include <memory>
 #include <mutex>
@@ -50,13 +55,23 @@ public:
    */
   const uint32_t &current_frame() const noexcept;
 
+  /**
+   * @brief Set the sample rate of the audio hardware
+   */
+  void set_sample_rate(uint32_t sample_rate) noexcept;
+
 private:
   PCMParser _pcm_parser;
-  std::unique_ptr<PCMAudioData> _pcm_data;
-  std::mutex _pcm_data_mutex;
+  std::shared_ptr<ThreadSafeAudioBuffer> _audio_buffer;
   Status _status = {};
-  uint32_t _current_frame = 0;
-  std::vector<float> _empty_frame = {0.0f, 0.0f};
+  std::vector<float> _empty_frame = {0.0f,
+                                     0.0f}; // TODO: Just use _output_frame?
+  std::vector<float> _output_frame = {0.0f, 0.0f};
+  GrainStore _grain_store;
+  Conductor _conductor;
+  Sequencer<uint16_t, GrainEvent> _sequencer;
+  void activate_new_grain(GrainEvent event) noexcept;
+  Grain _grain;
 };
 
 } // namespace kurt

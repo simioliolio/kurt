@@ -1,3 +1,6 @@
+#pragma once
+
+#include "audio_buffer.hpp"
 #include "pcm_audio_data.hpp"
 
 #include <memory>
@@ -14,12 +17,13 @@ namespace kurt {
  *
  * @note This class is derived from the AudioBuffer class.
  */
-class ThreadSafeAudioBuffer {
+class ThreadSafeAudioBuffer : public AudioBuffer {
 public:
   ThreadSafeAudioBuffer(
       std::unique_ptr<PCMAudioData> pcm_data,
       std::unique_ptr<std::binary_semaphore> pcm_data_sem =
           std::make_unique<std::binary_semaphore>(1)) noexcept;
+  ThreadSafeAudioBuffer() noexcept;
 
   ThreadSafeAudioBuffer(const ThreadSafeAudioBuffer &other) = delete;
   ThreadSafeAudioBuffer(ThreadSafeAudioBuffer &&other) = delete;
@@ -29,14 +33,34 @@ public:
   ~ThreadSafeAudioBuffer() = default;
 
   /**
+   * @brief Check if audio data has been set.
+   *
+   * @return True if audio data has been set, false otherwise.
+   */
+  bool has_audio_data() const noexcept override;
+
+  /**
+   * @brief Get the PCM audio data associated with the audio buffer.
+   *
+   * @note Throws an exception if audio has not been set. Check
+   * if audio has been set with `has_audio_data`.
+   *
    * @note Call `acquire` before calling get_audio_data(), then `release` after
    * you are done.
    */
-  PCMAudioData &get_audio_data() const noexcept;
+  PCMAudioData &get_audio_data() const override;
 
+  /**
+   * @brief Set the PCM audio data associated with the audio buffer.
+   *
+   * @param pcm_data The PCM audio data to associate with the audio buffer.
+   *
+   * @note This function is thread-safe.
+   */
   void set_audio_data(std::unique_ptr<PCMAudioData> pcm_data) noexcept;
 
   /**
+   * @brief Acquire and release the semaphore.
    * Incorrect use of these functions can lead to deadlocks.
    * TODO: Return a RAII object that acquires the semaphore in the constructor
    * and releases it in the destructor.

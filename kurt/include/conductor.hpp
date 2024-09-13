@@ -59,16 +59,20 @@ public:
   /**
    * @brief Set the sample rate of the conductor
    */
-  void set_sample_rate(uint32_t sample_rate) noexcept {
-    _sample_rate = sample_rate;
-  };
+  void set_sample_rate(uint32_t sample_rate) noexcept;
 
 private:
   uint32_t _sample_rate = 44100;
   uint16_t _bpm = 120;
   uint16_t _subdivisions_per_beat = 4;
   uint32_t _number_of_beats = 4;
+
+  /**
+   * Used to keep track of the current frame, and wraps
+   * based on the number of beats
+   */
   uint32_t _frame_count = 0;
+
   uint16_t _playhead = 0; // in subdivisions
   uint32_t _frames_per_subdivision = 5500;
   std::optional<uint16_t> _new_subdivision = 0;
