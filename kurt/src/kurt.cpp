@@ -62,9 +62,12 @@ const std::span<const float> Kurt::next_frame() noexcept {
    */
   _audio_buffer->acquire();
 
-  auto pcm_data = _audio_buffer->get_audio_data();
+  auto channels = _audio_buffer->get_num_channels();
+  auto frames = _audio_buffer->get_number_of_frames();
+  auto data_ptr = _audio_buffer->get_audio_data_ptr();
+
   // TODO: Needed? Can this be handled by Grain?
-  if (pcm_data.number_of_frames == 0) {
+  if (frames == 0) {
     std::cout << "no pcm data to play, returning silence" << std::endl;
     return std::span<const float>(_empty_frame);
   }
@@ -86,7 +89,7 @@ const std::span<const float> Kurt::next_frame() noexcept {
   // for (auto &grain : _grain_store.active_grains()) {
 
   //   auto frame = grain.next_frame();
-  //   for (int i = 0; i < pcm_data.channels; i++) {
+  //   for (int i = 0; i < channels; i++) {
   //     _output_frame[i] += frame[i];
   //   }
   // }
@@ -94,7 +97,7 @@ const std::span<const float> Kurt::next_frame() noexcept {
   _output_frame = {0.0f, 0.0f};
 
   std::span<const float> grain_frame = _grain.next_frame();
-  for (int i = 0; i < pcm_data.channels; i++) {
+  for (int i = 0; i < channels; i++) {
     _output_frame[i] = grain_frame[i];
   }
 

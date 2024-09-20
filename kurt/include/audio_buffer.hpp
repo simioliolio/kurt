@@ -22,6 +22,14 @@ public:
    * if audio has been set with `has_audio_data`.
    */
   virtual PCMAudioData &get_audio_data() const = 0;
+
+  virtual float *get_audio_data_ptr() noexcept = 0;
+
+  virtual uint32_t get_sample_rate() const noexcept = 0;
+
+  virtual uint16_t get_num_channels() const noexcept = 0;
+
+  virtual uint32_t get_number_of_frames() const noexcept = 0;
 };
 
 } // namespace kurt

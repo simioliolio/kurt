@@ -59,6 +59,25 @@ public:
    */
   void set_audio_data(std::unique_ptr<PCMAudioData> pcm_data) noexcept;
 
+  float *get_audio_data_ptr() noexcept override {
+    return _pcm_data->normalized_data.data();
+  }
+
+  // TODO: Prevent copy by returning a const reference
+  uint32_t get_sample_rate() const noexcept override {
+    return _pcm_data->sample_rate;
+  }
+
+  // TODO: Prevent copy by returning a const reference
+  uint16_t get_num_channels() const noexcept override {
+    return _pcm_data->channels;
+  }
+
+  // TODO: Prevent copy by returning a const reference
+  uint32_t get_number_of_frames() const noexcept override {
+    return _pcm_data->number_of_frames;
+  }
+
   /**
    * @brief Acquire and release the semaphore.
    * Incorrect use of these functions can lead to deadlocks.
