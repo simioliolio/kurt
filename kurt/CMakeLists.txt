@@ -29,10 +29,10 @@ add_executable(kurt_test
     test/conductor_test.cpp
     test/grain_test.cpp
     test/grain_store_test.cpp
-    test/kurt_test.cpp
     test/pcm_parser_test.cpp
     test/sequencer_test.cpp
     test/thread_safe_audio_buffer_test.cpp
+    test/utilities/stub_audio_buffer.hpp
 )
 target_link_libraries(kurt_test
     PRIVATE

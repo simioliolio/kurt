@@ -3,41 +3,15 @@
 #include "grain.hpp"
 #include "pcm_audio_data.hpp"
 #include "pcm_parser.hpp"
+#include "utilities/stub_audio_buffer.hpp"
 
 using namespace kurt;
-
-class StubAudioBuffer : public AudioBuffer {
-public:
-  bool has_audio_data() const noexcept override { return true; }
-
-  PCMAudioData &get_audio_data() const override { return _pcm_data; }
-
-  void set_audio_data(PCMAudioData pcm_data) noexcept { _pcm_data = pcm_data; }
-
-  PCMAudioData stub_pcm_data() {
-    return {44100,
-            2,
-            6,
-            {0.0f, 0.0f, 0.5f, 0.5f, 1.0f, 1.0f, -1.0f, -1.0f, -0.5f, -0.5f,
-             -0.2f, -0.2f}};
-  }
-
-  PCMAudioData stub_full_scale_pcm_data() {
-    return {44100,
-            2,
-            5,
-            {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f}};
-  }
-
-private:
-  mutable PCMAudioData _pcm_data = stub_pcm_data();
-};
 
 class GrainTest : public ::testing::Test {
 protected:
   std::shared_ptr<Grain> grain;
-  std::shared_ptr<StubAudioBuffer> _stub_audio_buffer =
-      std::make_shared<StubAudioBuffer>();
+  std::shared_ptr<test::StubAudioBuffer> _stub_audio_buffer =
+      std::make_shared<test::StubAudioBuffer>();
 
   void SetUp() override { grain = std::make_shared<Grain>(_stub_audio_buffer); }
 

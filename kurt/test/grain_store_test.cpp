@@ -3,23 +3,16 @@
 #include "grain.hpp"
 #include "grain_store.hpp"
 
+#include "utilities/stub_audio_buffer.hpp"
+
 using namespace kurt;
-
-class StubAudioBuffer : public AudioBuffer {
-public:
-  bool has_audio_data() const noexcept override { return false; }
-
-  PCMAudioData &get_audio_data() const override {
-    throw std::runtime_error("Audio data not set");
-  }
-};
 
 class GrainStoreTest : public ::testing::Test {
 protected:
   std::unique_ptr<std::vector<Grain>> grains =
       std::make_unique<std::vector<Grain>>(std::vector<Grain>());
-  std::shared_ptr<StubAudioBuffer> stub_audio_buffer =
-      std::make_shared<StubAudioBuffer>();
+  std::shared_ptr<test::StubAudioBuffer> stub_audio_buffer =
+      std::make_shared<test::StubAudioBuffer>();
   std::vector<Grain> *grains_ptr;
   std::shared_ptr<GrainStore> grain_store;
 
