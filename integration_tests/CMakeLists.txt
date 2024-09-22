@@ -1,4 +1,5 @@
 add_executable(macos_integration_test
+    benchmarking/kurt_benchmark.cpp
     macos/integration_test.cpp
 )
 target_link_libraries(macos_integration_test
