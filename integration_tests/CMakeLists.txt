@@ -14,3 +14,4 @@ gtest_discover_tests(macos_integration_test)
 
 # Add test data
 file(COPY resources/440Hz2s.wav DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources/)
+file(COPY resources/880Hz2s.wav DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/resources/)

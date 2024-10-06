@@ -10,6 +10,7 @@ class GrainStore {
 
 public:
   explicit GrainStore(std::unique_ptr<std::vector<Grain>> grains) noexcept;
+  GrainStore();
   GrainStore(GrainStore &&) = default;
   GrainStore &operator=(GrainStore &&) = default;
   GrainStore(const GrainStore &) = delete;
@@ -20,7 +21,13 @@ public:
    *
    * @note Throws an exception if there are no available grains
    */
+  // TODO: Remove
   Grain &available_grain();
+
+  /**
+   * @brief Add a grain to the store.
+   */
+  void add_grain(Grain grain) { _grains->push_back(std::move(grain)); }
 
   /**
    * @brief Get all active grains.

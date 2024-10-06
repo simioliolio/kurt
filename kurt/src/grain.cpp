@@ -11,6 +11,11 @@ Grain::Grain(std::shared_ptr<AudioBuffer> audio_buffer)
     auto pcm_data = _audio_buffer->get_audio_data();
     _output_frame.resize(pcm_data.channels);
   }
+  // TODO: Move to intializer list
+  _channels = _audio_buffer->get_num_channels();
+  _sample_rate = _audio_buffer->get_sample_rate();
+  _frames = _audio_buffer->get_number_of_frames();
+  _audio_data_ptr = _audio_buffer->get_audio_data_ptr();
 }
 
 void Grain::set_start_frame(int64_t start_frame) noexcept {
@@ -29,7 +34,7 @@ void Grain::set_duration(int64_t duration) noexcept {
   verify_start_frame_and_duration();
 }
 
-void Grain::verify_start_frame_and_duration() {
+void Grain::verify_start_frame_and_duration() noexcept {
   if (!_audio_buffer->has_audio_data()) {
     return;
   }
@@ -48,11 +53,7 @@ const std::span<const float> Grain::next_frame() noexcept {
     return std::span<const float>(_silent_frame.data(), _silent_frame.size());
   }
 
-  auto channels = _audio_buffer->get_num_channels();
-  auto frames = _audio_buffer->get_number_of_frames();
-  auto data_ptr = _audio_buffer->get_audio_data_ptr();
-
-  if (_pcm_data_position >= frames) {
+  if (_pcm_data_position >= _frames) {
     std::cout << "Warning: position beyond end of pcm_data, outputting silence"
               << std::endl;
     return std::span<const float>(_silent_frame.data(), _silent_frame.size());
@@ -60,9 +61,9 @@ const std::span<const float> Grain::next_frame() noexcept {
   if (_state == Grain::State::INACTIVE) {
     return std::span<const float>(_silent_frame.data(), _silent_frame.size());
   }
-  auto start_index = data_ptr + _pcm_data_position * channels;
+  auto start_index = _audio_data_ptr + _pcm_data_position * _channels;
   float amp = grain_amp_for_frame(_pcm_data_position);
-  for (int i = 0; i < channels; i++) {
+  for (int i = 0; i < _channels; i++) {
     _output_frame[i] = start_index[i] * amp;
   }
   _pcm_data_position++;

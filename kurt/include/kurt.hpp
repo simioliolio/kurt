@@ -62,16 +62,20 @@ public:
 
 private:
   PCMParser _pcm_parser;
+
+  // TODO: Make thread safe
+  // Audio buffer should be passed to newly constructed grains
+  // but can also be changed when loading a new file. These two
+  // operations should both happen off the audio thread.
   std::shared_ptr<ThreadSafeAudioBuffer> _audio_buffer;
+
   Status _status = {};
-  std::vector<float> _empty_frame = {0.0f,
-                                     0.0f}; // TODO: Just use _output_frame?
+  std::vector<float> _empty_frame = {0.0f, 0.0f};
   std::vector<float> _output_frame = {0.0f, 0.0f};
   GrainStore _grain_store;
   Conductor _conductor;
   Sequencer<uint16_t, GrainEvent> _sequencer;
   void activate_new_grain(GrainEvent event) noexcept;
-  Grain _grain;
 };
 
 } // namespace kurt

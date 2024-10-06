@@ -21,6 +21,7 @@ public:
    * @note Throws an exception if audio has not been set. Check
    * if audio has been set with `has_audio_data`.
    */
+  // TODO: Remove slow API
   virtual PCMAudioData &get_audio_data() const = 0;
 
   virtual float *get_audio_data_ptr() noexcept = 0;

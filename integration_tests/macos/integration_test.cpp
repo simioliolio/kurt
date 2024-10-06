@@ -37,7 +37,13 @@ TEST_F(MacIntegration, AudioPlaysAndLoops) {
 
   ASSERT_TRUE(kurt_ptr->status().playing);
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+  // Should be able to load new file while first grain continues playing
+  error = kurt_ptr->load_wav_file("resources/880Hz2s.wav");
+  ASSERT_FALSE(error) << error.value();
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
   kurt_ptr->stop();
   ASSERT_FALSE(kurt_ptr->status().playing);
