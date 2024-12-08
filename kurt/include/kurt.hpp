@@ -68,6 +68,7 @@ private:
   // but can also be changed when loading a new file. These two
   // operations should both happen off the audio thread.
   std::shared_ptr<ThreadSafeAudioBuffer> _audio_buffer;
+  std::mutex _audio_buffer_mutex;
 
   Status _status = {};
   std::vector<float> _empty_frame = {0.0f, 0.0f};

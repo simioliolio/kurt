@@ -20,11 +20,9 @@ Kurt::load_wav_file(const std::string &path) noexcept {
     std::cout << "failed to load pcm data" << std::endl;
     return result.error();
   } else {
-    // TODO: Synchronise this with the creation of grains
-    _audio_buffer = std::make_shared<ThreadSafeAudioBuffer>();
-    _audio_buffer->acquire();
-    _audio_buffer->set_audio_data(std::move(result.value()));
-    _audio_buffer->release();
+    std::lock_guard<std::mutex> lock(_audio_buffer_mutex);
+    _audio_buffer =
+        std::make_shared<ThreadSafeAudioBuffer>(std::move(result.value()));
 
     return std::nullopt;
   }
@@ -42,6 +40,8 @@ const std::span<const float> Kurt::next_frame() noexcept {
     return std::span<const float>(_empty_frame);
   }
 
+  std::lock_guard<std::mutex> lock(_audio_buffer_mutex);
+
   if (!_audio_buffer) {
     std::cout << "kurt: No audio buffer" << std::endl;
     return std::span<const float>(_empty_frame);
@@ -51,15 +51,6 @@ const std::span<const float> Kurt::next_frame() noexcept {
     std::cout << "kurt: Warning: No pcm data" << std::endl;
     return std::span<const float>(_empty_frame);
   }
-
-  // TODO: Remove this hack
-  /**
-   * Grains are unaware of threading aspect of the audio buffer.
-   * We acquire and release in this function, granting thread
-   * safety to the grain store indirectly. This is a bit of a
-   * hack, but it's an optimisation for speed.
-   */
-  _audio_buffer->acquire();
 
   // TODO: Move to private members when audio loaded
   auto channels = _audio_buffer->get_num_channels();
@@ -94,9 +85,6 @@ const std::span<const float> Kurt::next_frame() noexcept {
     }
   }
 
-  // TODO: Remove
-  _audio_buffer->release();
-
   for (auto &sample : _output_frame) {
     // TODO: Could manually clamp to avoid including <algorithm>
     sample = std::clamp(sample, -1.0f, 1.0f);
@@ -112,13 +100,16 @@ void Kurt::set_sample_rate(uint32_t sample_rate) noexcept {
 }
 
 void Kurt::activate_new_grain(GrainEvent event) noexcept {
-  auto grain = _grain_store.available_grain();
-  // TODO: Unsafe use of _audio_buffer, as UI could be changing it
+  auto &grain = _grain_store.available_grain();
+
+  // Ensure _audio_buffer is not being loaded
   grain.set_audio_buffer(_audio_buffer);
+
   grain.set_start_frame(event.start_frame);
   grain.set_duration(event.duration);
   grain.set_attack(event.attack);
   grain.set_decay(event.decay);
+
   grain.make_active();
 }
 
