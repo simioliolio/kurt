@@ -9,10 +9,10 @@ namespace kurt {
 class GrainStore {
 
 public:
-  explicit GrainStore(std::unique_ptr<std::vector<Grain>> grains) noexcept;
-  GrainStore();
-  GrainStore(GrainStore &&) = default;
-  GrainStore &operator=(GrainStore &&) = default;
+  GrainStore(std::unique_ptr<std::vector<Grain>> grains) noexcept;
+  GrainStore() = delete;
+  GrainStore(GrainStore &&) = delete;
+  GrainStore &operator=(GrainStore &&) = delete;
   GrainStore(const GrainStore &) = delete;
   GrainStore &operator=(const GrainStore &) = delete;
 
@@ -27,12 +27,16 @@ public:
   /**
    * @brief Add a grain to the store.
    */
-  void add_grain(Grain grain) { _grains->push_back(std::move(grain)); }
+  void add_grain(Grain grain);
 
   /**
    * @brief Get all active grains.
    *
    * @return A ranges filter view of all active grains
+   *
+   * @note This is nice code and all, but it's potentially not very
+   * efficient. This should be benchmarked against a more traditional
+   * approach.
    */
   auto active_grains() {
     return *_grains | std::views::filter([](const Grain &grain) {

@@ -5,7 +5,7 @@
 
 namespace kurt {
 
-Kurt::Kurt() {
+Kurt::Kurt() : _grain_store(std::make_unique<std::vector<Grain>>()) {
   // TODO: Inject sequence. Setting simple init sequence for now.
   _sequencer.set(0, {{0, 44100, 10, 10}});
 }
