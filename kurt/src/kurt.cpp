@@ -5,7 +5,7 @@
 
 namespace kurt {
 
-Kurt::Kurt() : _grain_store(std::make_unique<std::vector<Grain>>()) {
+Kurt::Kurt() : _grain_store(std::array<Grain, GrainStore::MAX_GRAINS>()) {
   // TODO: Inject sequence. Setting simple init sequence for now.
   _sequencer.set(0, {{0, 44100, 10, 10}});
 }
@@ -76,15 +76,9 @@ const std::span<const float> Kurt::next_frame() noexcept {
   _conductor.next_frame();
   std::optional<uint16_t> new_subdivision = _conductor.new_subdivision();
   if (new_subdivision.has_value()) {
-    std::cout << "New subdivision! " << *new_subdivision << std::endl;
 
     auto events = _sequencer.get(*new_subdivision);
     for (auto &event : events) {
-      std::cout << "activating new grain" << std::endl;
-      // TODO: Optimisation: Ensure this does not happen on the audio thread, as
-      // new grain is constructed here
-      // Also pass on_finish callback to grain so it can be removed from store
-      // when it finishes
       activate_new_grain(event);
     }
   }
@@ -118,14 +112,14 @@ void Kurt::set_sample_rate(uint32_t sample_rate) noexcept {
 }
 
 void Kurt::activate_new_grain(GrainEvent event) noexcept {
+  auto grain = _grain_store.available_grain();
   // TODO: Unsafe use of _audio_buffer, as UI could be changing it
-  auto grain = Grain(_audio_buffer);
+  grain.set_audio_buffer(_audio_buffer);
   grain.set_start_frame(event.start_frame);
   grain.set_duration(event.duration);
   grain.set_attack(event.attack);
   grain.set_decay(event.decay);
   grain.make_active();
-  _grain_store.add_grain(std::move(grain));
 }
 
 } // namespace kurt

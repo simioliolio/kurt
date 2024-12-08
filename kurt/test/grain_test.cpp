@@ -13,7 +13,10 @@ protected:
   std::shared_ptr<test::StubAudioBuffer> _stub_audio_buffer =
       std::make_shared<test::StubAudioBuffer>();
 
-  void SetUp() override { grain = std::make_shared<Grain>(_stub_audio_buffer); }
+  void SetUp() override {
+    grain = std::make_shared<Grain>();
+    grain->set_audio_buffer(_stub_audio_buffer);
+  }
 
   PCMAudioData stub_pcm_data() {
     return {44100,

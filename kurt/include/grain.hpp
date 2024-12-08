@@ -29,15 +29,21 @@ public:
    */
   enum State { INACTIVE, ACTIVE };
 
-  // TODO: Delete default constructor(s)
+  Grain() = default;
+  Grain(Grain &&) = default;
+  Grain &operator=(Grain &&) = delete;
+  Grain(const Grain &) = default;
+  Grain &operator=(const Grain &) = delete;
 
   /**
-   * @brief Constructs a Grain object with the specified PCM audio data.
+   * @brief Sets the PCM audio data associated with the grain.
    *
-   * @param pcm_data The PCM audio data to associate with the grain.
-   * Ie, one frame is a sample for each channel.
+   * @param audio_buffer The PCM audio data to associate with the grain.
+   *
+   * @warning This is not thread-safe. Ensure that the audio buffer is not
+   * being used by another thread when calling this function.
    */
-  Grain(std::shared_ptr<AudioBuffer> audio_buffer);
+  void set_audio_buffer(std::shared_ptr<AudioBuffer> audio_buffer) noexcept;
 
   /**
    * @brief Sets the starting frame of the grain.
@@ -118,7 +124,7 @@ private:
   uint32_t _decay = 0;                // The decay value for the grain.
   std::vector<float> _output_frame = {
       0.0f, 0.0f}; // A buffer to store the output frame.
-  const std::vector<float> _silent_frame = {
+  std::vector<float> _silent_frame = {
       0.0f, 0.0f};                // A buffer to store a silent frame.
   State _state = State::INACTIVE; // The state of the grain.
 

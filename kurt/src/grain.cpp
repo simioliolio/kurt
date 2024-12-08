@@ -5,13 +5,13 @@
 
 namespace kurt {
 
-Grain::Grain(std::shared_ptr<AudioBuffer> audio_buffer)
-    : _audio_buffer(audio_buffer) {
+void Grain::set_audio_buffer(
+    std::shared_ptr<AudioBuffer> audio_buffer) noexcept {
+  _audio_buffer = audio_buffer;
   if (_audio_buffer->has_audio_data()) {
     auto pcm_data = _audio_buffer->get_audio_data();
     _output_frame.resize(pcm_data.channels);
   }
-  // TODO: Move to intializer list
   _channels = _audio_buffer->get_num_channels();
   _sample_rate = _audio_buffer->get_sample_rate();
   _frames = _audio_buffer->get_number_of_frames();
