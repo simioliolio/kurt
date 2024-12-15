@@ -5,10 +5,7 @@
 
 namespace kurt {
 
-Kurt::Kurt() : _grain_store(std::array<Grain, GrainStore::MAX_GRAINS>()) {
-  // TODO: Inject sequence. Setting simple init sequence for now.
-  _sequencer.set(0, {{0, 44100, 10, 10}});
-}
+Kurt::Kurt() : _grain_store(std::array<Grain, GrainStore::MAX_GRAINS>()) {}
 
 Kurt::~Kurt() = default;
 
@@ -26,6 +23,12 @@ Kurt::load_wav_file(const std::string &path) noexcept {
 
     return std::nullopt;
   }
+}
+
+void Kurt::set_sequence(uint32_t frame,
+                        std::vector<GrainEvent> grains) noexcept {
+  std::lock_guard<std::mutex> lock(_audio_buffer_mutex);
+  _sequencer.set(frame, grains);
 }
 
 void Kurt::play() noexcept { _status.playing = true; }

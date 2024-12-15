@@ -34,6 +34,15 @@ public:
    */
   std::optional<std::string> load_wav_file(const std::string &path) noexcept;
 
+  /**
+   * @brief Set the sequence of grains to play.
+   *
+   * @param frame The frame number to start the grain events.
+   * @param sequence The grains to start.
+   * @note This function is thread-safe.
+   */
+  void set_sequence(uint32_t frame, std::vector<GrainEvent> grains) noexcept;
+
   void play() noexcept;
   void stop() noexcept;
 
@@ -44,6 +53,9 @@ public:
    *
    * @return std::span<const float> The next frame of audio data.
    * @note This function is thread-safe.
+   *
+   * TODO: Might introduce an api here to get multiple frames at once
+   * on a buffer-by-buffer basis.
    */
   const std::span<const float> next_frame() noexcept;
 
@@ -56,7 +68,11 @@ public:
   const uint32_t &current_frame() const noexcept;
 
   /**
-   * @brief Set the sample rate of the audio hardware
+   * @brief Set the sample rate of the audio hardware.
+   * This allows Kurt to have a sense of time.
+   *
+   * @note This function is not thread-safe, and should be set
+   * before calling play.
    */
   void set_sample_rate(uint32_t sample_rate) noexcept;
 

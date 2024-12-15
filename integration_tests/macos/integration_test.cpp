@@ -31,6 +31,8 @@ protected:
 
 TEST_F(MacIntegration, AudioPlaysAndLoops) {
   auto error = kurt_ptr->load_wav_file("resources/440Hz2s.wav");
+  kurt_ptr->set_sequence(
+      0, {{.start_frame = 0, .duration = 44100, .attack = 10, .decay = 10}});
   ASSERT_FALSE(error) << error.value();
 
   kurt_ptr->play();
