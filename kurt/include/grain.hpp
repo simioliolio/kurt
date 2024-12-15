@@ -117,11 +117,11 @@ private:
   uint32_t _sample_rate = 0; // The sample rate of the audio data.
   float *_audio_data_ptr;    // Pointer to the audio data.
 
-  uint64_t _start_frame = 0;          // The start position of the grain.
-  uint64_t _pcm_data_position = 0.0f; // The current position of the grain.
-  uint64_t _duration = 1.0f;          // The duration of the grain, in frames.
-  uint32_t _attack = 0;               // The attack value for the grain.
-  uint32_t _decay = 0;                // The decay value for the grain.
+  uint64_t _start_frame = 0;         // The start position of the grain.
+  float_t _pcm_data_position = 0.0f; // The current position of the grain.
+  uint64_t _duration = 1.0f;         // The duration of the grain, in frames.
+  uint32_t _attack = 0;              // The attack value for the grain.
+  uint32_t _decay = 0;               // The decay value for the grain.
   std::vector<float> _output_frame = {
       0.0f, 0.0f}; // A buffer to store the output frame.
   std::vector<float> _silent_frame = {

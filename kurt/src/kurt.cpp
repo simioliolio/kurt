@@ -27,6 +27,8 @@ Kurt::load_wav_file(const std::string &path) noexcept {
 
 void Kurt::set_sequence(uint32_t frame,
                         std::vector<GrainEvent> grains) noexcept {
+  // TODO: Borrowing audio buffer mutex here. Can a single lock be used
+  // to synchronize UI and audio buffer access?
   std::lock_guard<std::mutex> lock(_audio_buffer_mutex);
   _sequencer.set(frame, grains);
 }
@@ -81,7 +83,6 @@ const std::span<const float> Kurt::next_frame() noexcept {
 
   // Get output from grains
   for (auto &grain : _grain_store.active_grains()) {
-
     auto frame = grain.next_frame();
     for (int i = 0; i < channels; i++) {
       _output_frame[i] += frame[i];
@@ -105,7 +106,7 @@ void Kurt::set_sample_rate(uint32_t sample_rate) noexcept {
 void Kurt::activate_new_grain(GrainEvent event) noexcept {
   auto &grain = _grain_store.available_grain();
 
-  // Ensure _audio_buffer is not being loaded
+  // Ensure synchronisation with `load_wav_file()`
   grain.set_audio_buffer(_audio_buffer);
 
   grain.set_start_frame(event.start_frame);

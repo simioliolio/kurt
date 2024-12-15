@@ -53,20 +53,35 @@ const std::span<const float> Grain::next_frame() noexcept {
     return std::span<const float>(_silent_frame.data(), _silent_frame.size());
   }
 
+  auto pcm_data_position_floor = static_cast<int64_t>(_pcm_data_position);
+  auto pcm_data_position_ceil = pcm_data_position_floor + 1;
+
   if (_pcm_data_position >= _frames) {
     std::cout << "Warning: position beyond end of pcm_data, outputting silence"
               << std::endl;
     return std::span<const float>(_silent_frame.data(), _silent_frame.size());
   }
+
   if (_state == Grain::State::INACTIVE) {
     return std::span<const float>(_silent_frame.data(), _silent_frame.size());
   }
-  auto start_index = _audio_data_ptr + _pcm_data_position * _channels;
-  float amp = grain_amp_for_frame(_pcm_data_position);
+
+  // Find the linear interpolation between the floor and ceiling frames
+  // (ie, when grain pitch is non-integer)
+  auto first_frame_ptr = _audio_data_ptr + pcm_data_position_floor * _channels;
+  auto second_frame_ptr = _audio_data_ptr + pcm_data_position_ceil * _channels;
+  float_t interp = _pcm_data_position - pcm_data_position_floor;
   for (int i = 0; i < _channels; i++) {
-    _output_frame[i] = start_index[i] * amp;
+    auto interpolated_frame =
+        first_frame_ptr[i] +
+        interp * (second_frame_ptr[i] - first_frame_ptr[i]);
+    auto amp = grain_amp_for_frame(pcm_data_position_floor);
+    _output_frame[i] = interpolated_frame * amp;
   }
-  _pcm_data_position++;
+
+  // Increment the position of the grain based on pitch (constant for now)
+  _pcm_data_position += 1.0f;
+
   if (_pcm_data_position >= _start_frame + _duration) {
     // Grain has finished, and should be inactive for next frame
     _state = Grain::State::INACTIVE;

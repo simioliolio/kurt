@@ -79,10 +79,6 @@ public:
 private:
   PCMParser _pcm_parser;
 
-  // TODO: Make thread safe
-  // Audio buffer should be passed to newly constructed grains
-  // but can also be changed when loading a new file. These two
-  // operations should both happen off the audio thread.
   std::shared_ptr<ThreadSafeAudioBuffer> _audio_buffer;
   std::mutex _audio_buffer_mutex;
 
