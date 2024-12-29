@@ -20,4 +20,5 @@ FetchContent_MakeAvailable(googletest)
 
 add_subdirectory(kurt)
 add_subdirectory(kurt_macos)
+add_subdirectory(kurt_macos_app)
 add_subdirectory(integration_tests)

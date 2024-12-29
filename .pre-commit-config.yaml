@@ -3,3 +3,7 @@ repos:
     rev: 'v18.1.6'
     hooks:
     -   id: clang-format
+-   repo: https://github.com/nicklockwood/SwiftFormat.git
+    rev: '0.55.4'
+    hooks:
+    -   id: swiftformat
