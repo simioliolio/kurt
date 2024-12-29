@@ -110,8 +110,7 @@ public:
 
 private:
   std::shared_ptr<AudioBuffer>
-      _audio_buffer; // The PCM audio data associated with the grain.
-  // Optimisation: Keep audio data to prevent calling audiobuffer every frame
+      _audio_buffer;         // The PCM audio data associated with the grain.
   uint16_t _channels = 0;    // The number of channels in the audio data.
   uint32_t _frames = 0;      // The number of frames in the audio data.
   uint32_t _sample_rate = 0; // The sample rate of the audio data.
