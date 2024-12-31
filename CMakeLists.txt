@@ -1,8 +1,15 @@
 # Set minimum CMake version
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.29)
 
 # Set project name
-project(kurt)
+project(kurt
+    VERSION 0.1.0
+    LANGUAGES CXX
+)
+
+if (CMAKE_GENERATOR STREQUAL "Xcode")
+    enable_language(Swift)
+endif()
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 23)
