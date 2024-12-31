@@ -1,3 +1,4 @@
+import KurtMacOS
 import SwiftUI
 
 @main

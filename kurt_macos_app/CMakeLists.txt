@@ -1,9 +1,3 @@
-cmake_minimum_required(VERSION 3.29)
-project(kurt_macos_app
-    VERSION 1.0
-    LANGUAGES Swift
-)
-
 add_executable(kurtmacosapp
     ContentView.swift
     KurtApp.swift
@@ -16,9 +10,20 @@ set_target_properties(kurtmacosapp PROPERTIES
 
 set_target_properties(kurtmacosapp PROPERTIES
     XCODE_ATTRIBUTE_SWIFT_OPTIMIZATION_LEVEL[variant=Debug] "-Onone"
+    XCODE_ATTRIBUTE_SWIFT_OBJC_INTEROP_MODE "objcxx"
 )
 
 set_target_properties(kurtmacosapp PROPERTIES
     MACOSX_BUNDLE TRUE
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in
+)
+
+# Ensure C++23 is used during Swift module emission
+target_compile_options(kurtmacosapp PRIVATE
+    $<$<COMPILE_LANGUAGE:Swift>:-Xcc -std=c++2b>
+)
+
+target_link_libraries(kurtmacosapp PRIVATE
+    kurt
+    kurt_macos
 )

@@ -1,0 +1,3 @@
+module KurtMacOS {
+  header "core_audio_host.hpp"
+}
