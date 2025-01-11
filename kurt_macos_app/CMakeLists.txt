@@ -18,6 +18,10 @@ set_target_properties(kurtmacosapp PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist.in
 )
 
+set_target_properties(kurtmacosapp PROPERTIES
+    XCODE_ATTRIBUTE_SWIFT_OBJC_BRIDGING_HEADER ${CMAKE_CURRENT_SOURCE_DIR}/kurtmacosapp-Bridging-Header.h
+)
+
 # Ensure C++23 is used during Swift module emission
 target_compile_options(kurtmacosapp PRIVATE
     $<$<COMPILE_LANGUAGE:Swift>:-Xcc -std=c++2b>

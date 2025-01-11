@@ -1,0 +1,3 @@
+module KurtCpp {
+  header "kurt.hpp"
+}
