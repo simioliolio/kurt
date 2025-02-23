@@ -12,8 +12,8 @@ public:
   static constexpr size_t MAX_GRAINS = 5;
   GrainStore(std::array<Grain, MAX_GRAINS> &&grains) noexcept;
   GrainStore() = delete;
-  GrainStore(GrainStore &&) = delete;
-  GrainStore &operator=(GrainStore &&) = delete;
+  GrainStore(GrainStore &&) noexcept;
+  GrainStore &operator=(GrainStore &&) noexcept;
   GrainStore(const GrainStore &) = delete;
   GrainStore &operator=(const GrainStore &) = delete;
 

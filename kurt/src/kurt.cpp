@@ -7,6 +7,8 @@ namespace kurt {
 
 Kurt::Kurt() : _grain_store(std::array<Grain, GrainStore::MAX_GRAINS>()) {}
 
+Kurt::Kurt(Kurt &&other) : _grain_store(std::move(other._grain_store)) {}
+
 Kurt::~Kurt() = default;
 
 std::optional<std::string>

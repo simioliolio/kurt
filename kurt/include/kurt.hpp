@@ -22,6 +22,10 @@ class Kurt {
 
 public:
   Kurt();
+  Kurt(const Kurt &) = delete;
+  Kurt(Kurt &&);
+  Kurt &operator=(const Kurt &) = delete;
+  Kurt &operator=(Kurt &&);
   ~Kurt();
 
   /**
